@@ -3161,6 +3161,38 @@ class Imputation:
         A class containing specific imputation algorithms for Pre-trained Language Models (LLMs)
         """
 
+        class Moment(BaseImputer):
+            """
+            MeanImpute class to impute missing values with the mean value of the ground truth.
+
+            Methods
+            -------
+            impute(self, params=None):
+                Perform imputation by replacing missing values with the mean value of the ground truth.
+            """
+            algorithm = "moment_impute"
+
+            def impute(self, params=None):
+                """
+                Impute missing values by replacing them with the mean value of the ground truth.
+                Template for adding external new algorithm
+
+                Parameters
+                ----------
+                params : dict, optional
+                    Dictionary of algorithm parameters (default is None).
+
+                Returns
+                -------
+                self : MinImpute
+                    The object with `recov_data` set.
+                """
+                from imputegap.algorithms.moment import moment_impute
+
+                self.recov_data = moment_impute(self.incomp_data, params)
+
+                return self
+
         class NuwaTS(BaseImputer):
             """
             NuwaTS class to impute missing values using Foundation Model Mending Every Incomplete Time Series
@@ -3345,6 +3377,72 @@ class Imputation:
                     seq_len, batch_size, epochs, gpt_layers, num_workers, seed = utils.load_parameters(query="default", algorithm=self.algorithm, verbose=self.verbose)
 
                 self.recov_data = gpt4ts(incomp_data=self.incomp_data, seq_len=seq_len, batch_size=batch_size, epochs=epochs, gpt_layers=gpt_layers, num_workers=num_workers, tr_ratio=tr_ratio, seed=seed, logs=self.logs, verbose=self.verbose)
+
+                return self
+
+
+        class UniTS(BaseImputer):
+            """
+            UniTS class to impute missing values with the mean value of the ground truth.
+
+            Methods
+            -------
+            impute(self, params=None):
+                Perform imputation by replacing missing values with the mean value of the ground truth.
+            """
+            algorithm = "uni_ts_impute"
+
+            def impute(self, params=None):
+                """
+                Impute missing values by replacing them with the mean value of the ground truth.
+                Template for adding external new algorithm
+
+                Parameters
+                ----------
+                params : dict, optional
+                    Dictionary of algorithm parameters (default is None).
+
+                Returns
+                -------
+                self : MinImpute
+                    The object with `recov_data` set.
+                """
+                from imputegap.algorithms.uni_ts import uni_ts
+
+                self.recov_data = uni_ts(self.incomp_data, params)
+
+                return self
+
+
+        class Timer(BaseImputer):
+            """
+            UniTS class to impute missing values with the mean value of the ground truth.
+
+            Methods
+            -------
+            impute(self, params=None):
+                Perform imputation by replacing missing values with the mean value of the ground truth.
+            """
+            algorithm = "timer_impute"
+
+            def impute(self, params=None):
+                """
+                Impute missing values by replacing them with the mean value of the ground truth.
+                Template for adding external new algorithm
+
+                Parameters
+                ----------
+                params : dict, optional
+                    Dictionary of algorithm parameters (default is None).
+
+                Returns
+                -------
+                self : MinImpute
+                    The object with `recov_data` set.
+                """
+                from imputegap.algorithms.timer_impute import timer_impute
+
+                self.recov_data = timer_impute(self.incomp_data, params)
 
                 return self
 

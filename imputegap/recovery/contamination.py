@@ -414,6 +414,199 @@ class GenGap:
         else:
             return ts_contaminated
 
+    def value(input_data, rate_dataset=0.2, rate_series=0.2, threshold=1.0, block_size=10, offset=0.1, seed=True,
+              explainer=False, verbose=True):
+        """
+        Apply Value-bounded contamination to selected series.
+
+        Parameters
+        ----------
+        input_data : numpy.ndarray
+            The time series dataset to contaminate.
+        rate_dataset : float, optional
+            Percentage of series to contaminate (default is 0.2).
+        rate_series : float, optional
+            Percentage of missing values per series (default is 0.2).
+        block_size : int, optional
+            Size of the block of missing data (default is 10).
+        offset : float, optional
+            Size of the uncontaminated section at the beginning of the series (default is 0.1).
+        seed : bool, optional
+            Whether to use a seed for reproducibility (default is True).
+        explainer : bool, optional
+            Only used within the Explainer Module to contaminate one series at a time (default: False).
+        verbose : bool, optional
+            Whether to display the contamination information (default is True).
+
+        Returns
+        -------
+        numpy.ndarray
+            The contaminated time series data.
+
+        Example
+        -------
+            >>> ts_m = ts.Contamination.value(ts.data, rate_dataset=0.2, rate_series=0.4, block_size=10):
+
+        """
+
+        if seed:
+            seed_value = 42
+            np.random.seed(seed_value)
+        else:
+            seed_value = -1
+
+        ts_contaminated = input_data.copy()
+        M, NS = ts_contaminated.shape
+
+        if not explainer:  # use random series
+            rate_series = utils.verification_limitation(rate_series)
+            rate_dataset = utils.verification_limitation(rate_dataset)
+            offset = utils.verification_limitation(offset)
+
+            nbr_series_impacted = int(np.ceil(M * rate_dataset))
+            series_selected = [str(idx) for idx in np.random.choice(M, nbr_series_impacted, replace=False)]
+
+        else:  # use fix series
+            series_selected = [str(rate_dataset)]
+
+        offset_nbr = int(offset * NS)
+        values_nbr = int(NS * rate_series)
+
+        if not explainer and verbose:
+            print(f"\n(CONT) missigness pattern: MCAR"
+                  f"\n\tselected series: {', '.join(str(int(n) + 1) for n in sorted(series_selected, key=int))}"
+                  f"\n\tpercentage of contaminated series: {rate_dataset * 100}%"
+                  f"\n\trate of missing data per series: {rate_series * 100}%"
+                  f"\n\tblock size: {block_size}"
+                  f"\n\tsecurity offset: [0-{offset_nbr}]"
+                  f"\n\tseed value: {seed_value}")
+
+        if offset_nbr + values_nbr > NS:
+            raise ValueError(
+                f"\n\tError: The sum of offset ({offset_nbr}) and missing values ({values_nbr}) exceeds the limit of of the series."
+                f" ({offset_nbr + values_nbr} must be smaller than {NS}).")
+
+        for series in series_selected:
+            S = int(series)
+            N = len(ts_contaminated[S])  # number of values in the series
+            P = int(N * offset)  # values to protect in the beginning of the series
+            W = int(N * rate_series)  # number of data to remove
+            B = int(W / block_size)  # number of block to remove
+
+            if B <= 0:
+                raise ValueError("The number of block to remove must be greater than 0. "
+                                 "The dataset or the number of blocks may not be appropriate."
+                                 "One series has", str(N), "population is ", str((N - P)), "the number to remove",
+                                 str(W), "and block site", str(block_size), "")
+
+            ts_contaminated[(ts_contaminated > 1.0)] = np.nan
+
+        print(ts_contaminated)
+        return ts_contaminated
+
+    def periodic(input_data, rate_dataset=0.2, rate_series=0.2, block_size=10, offset=0.1, seed=True, explainer=False,
+                 verbose=True):
+        """
+        Apply Value-bounded contamination to selected series.
+
+        Parameters
+        ----------
+        input_data : numpy.ndarray
+            The time series dataset to contaminate.
+        rate_dataset : float, optional
+            Percentage of series to contaminate (default is 0.2).
+        rate_series : float, optional
+            Percentage of missing values per series (default is 0.2).
+        block_size : int, optional
+            Size of the block of missing data (default is 10).
+        offset : float, optional
+            Size of the uncontaminated section at the beginning of the series (default is 0.1).
+        seed : bool, optional
+            Whether to use a seed for reproducibility (default is True).
+        explainer : bool, optional
+            Only used within the Explainer Module to contaminate one series at a time (default: False).
+        verbose : bool, optional
+            Whether to display the contamination information (default is True).
+
+        Returns
+        -------
+        numpy.ndarray
+            The contaminated time series data.
+
+        Example
+        -------
+            >>> ts_m = ts.Contamination.value(ts.data, rate_dataset=0.2, rate_series=0.4, block_size=10):
+
+        """
+
+        if seed:
+            seed_value = 42
+            np.random.seed(seed_value)
+        else:
+            seed_value = -1
+
+        ts_contaminated = input_data.copy()
+        M, NS = ts_contaminated.shape
+
+        if not explainer:  # use random series
+            rate_series = utils.verification_limitation(rate_series)
+            rate_dataset = utils.verification_limitation(rate_dataset)
+            offset = utils.verification_limitation(offset)
+
+            nbr_series_impacted = int(np.ceil(M * rate_dataset))
+            series_selected = [str(idx) for idx in np.random.choice(M, nbr_series_impacted, replace=False)]
+
+        else:  # use fix series
+            series_selected = [str(rate_dataset)]
+
+        offset_nbr = int(offset * NS)
+        values_nbr = int(NS * rate_series)
+
+        if not explainer and verbose:
+            print(f"\n(CONT) missigness pattern: MCAR"
+                  f"\n\tselected series: {', '.join(str(int(n) + 1) for n in sorted(series_selected, key=int))}"
+                  f"\n\tpercentage of contaminated series: {rate_dataset * 100}%"
+                  f"\n\trate of missing data per series: {rate_series * 100}%"
+                  f"\n\tblock size: {block_size}"
+                  f"\n\tsecurity offset: [0-{offset_nbr}]"
+                  f"\n\tseed value: {seed_value}")
+
+        if offset_nbr + values_nbr > NS:
+            raise ValueError(
+                f"\n\tError: The sum of offset ({offset_nbr}) and missing values ({values_nbr}) exceeds the limit of of the series."
+                f" ({offset_nbr + values_nbr} must be smaller than {NS}).")
+
+        for series in series_selected:
+            S = int(series)
+            N = len(ts_contaminated[S])  # number of values in the series
+            P = int(N * offset)  # values to protect in the beginning of the series
+            W = int(N * rate_series)  # number of data to remove
+            B = int(W / block_size)  # number of block to remove
+
+            if B <= 0:
+                raise ValueError("The number of block to remove must be greater than 0. "
+                                 "The dataset or the number of blocks may not be appropriate."
+                                 "One series has", str(N), "population is ", str((N - P)), "the number to remove",
+                                 str(W), "and block site", str(block_size), "")
+
+            data_to_remove = np.arange(P, N, block_size)
+
+            for start_point in data_to_remove:
+                for jump in range(block_size):  # remove the block size for each random position
+                    position = start_point + jump
+
+                    if position >= N:  # If block exceeds the series length
+                        position = P + (position - N)  # Wrap around to the start after protection
+
+                    while np.isnan(ts_contaminated[S, position]):
+                        position = position + 1
+
+                        if position >= N:  # If block exceeds the series length
+                            position = P + (position - N)  # Wrap around to the start after protection
+
+                    ts_contaminated[S, position] = np.nan
+
+        return ts_contaminated
 
     def blackout(input_data, rate_series=0.2, offset=0.1, logic_by_series=True, verbose=True):
         """

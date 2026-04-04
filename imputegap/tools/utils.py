@@ -575,6 +575,14 @@ def config_impute_algorithm(incomp_data, algorithm, verbose=True):
     elif alg == "csdi":
         imputer = Imputation.DeepLearning.CSDI(incomp_data)
 
+    # Additional LLM-based algorithms ..
+    elif alg == "units":
+        imputer = Imputation.LLMs.UniTS(incomp_data)
+    elif alg == "timer":
+        imputer = Imputation.LLMs.Timer(incomp_data)
+    elif alg == "moment":
+        imputer = Imputation.LLMs.Moment(incomp_data)
+
     # your own implementation #contributing
     #
     #elif alg == "your_algo_name":
@@ -1013,6 +1021,14 @@ def config_contamination(ts, pattern, dataset_rate=0.4, series_rate=0.4, block_s
         incomp_data = GenGap.distribution(input_data=ts.data, rate_dataset=dataset_rate, rate_series=series_rate, probabilities_list=probabilities, offset=offset, seed=seed, explainer=explainer, logic_by_series=logic_by_series, verbose=verbose)
     elif ptn == "blackout":
         incomp_data = GenGap.blackout(input_data=ts.data, rate_series=dataset_rate, offset=offset, logic_by_series=logic_by_series, verbose=verbose)
+    elif ptn == "value":
+        incomp_data = GenGap.value(input_data=ts.data, rate_dataset=dataset_rate, rate_series=series_rate,
+                                             block_size=block_size, offset=offset, seed=seed, explainer=explainer,
+                                             verbose=verbose)
+    elif ptn == "periodic":
+        incomp_data = GenGap.periodic(input_data=ts.data, rate_dataset=dataset_rate, rate_series=series_rate,
+                                                block_size=block_size, offset=offset, seed=seed, explainer=explainer,
+                                                verbose=verbose)
     else:
         raise ValueError(f"\n(CONT) Pattern '{pattern}' not recognized, please choose your algorithm on this list :\n\t{TimeSeries().patterns}\n")
         incomp_data = None
@@ -2479,6 +2495,9 @@ def list_of_algorithms():
         "SAITS",
         "NuwaTS",
         "GPT4TS",
+        "MOMENT",
+        "Timer",
+        "UniTS",
         "TimesNet",
         "CSDI"
     ])
