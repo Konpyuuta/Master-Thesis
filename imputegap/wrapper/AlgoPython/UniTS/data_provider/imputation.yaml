@@ -1,0 +1,16 @@
+task_dataset:
+  LTF_ECL_p96:
+    task_name: imputation
+    dataset: ECL
+    data: custom
+    embed: timeF
+    root_path: dataset/gluonts/electricity/
+    data_path: bafu.txt
+    features: M
+    seq_len: 96
+    label_len: 0
+    pred_len: 0
+    enc_in: 321
+    dec_in: 321
+    c_out: 321
+

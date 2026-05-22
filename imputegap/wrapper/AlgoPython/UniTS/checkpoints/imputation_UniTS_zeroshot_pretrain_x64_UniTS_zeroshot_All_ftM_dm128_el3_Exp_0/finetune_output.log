@@ -1,0 +1,8 @@
+loading pretrained model: units_x128_pretrain_checkpoint.pth
+data_task_name: LTF_ECL_p96 mse:0.644860029220581, mae:0.4827934205532074
+Avg score: LF-mse: nan, LF-mae: nan, CLS-acc nan, IMP-mse: 0.644860029220581, IMP-mae: 0.4827934205532074, Ano-F: nan
+{'LTF_ECL_p96': {'mse': 0.64486, 'mae': 0.48279342}}
+loading pretrained model: units_x128_pretrain_checkpoint.pth
+data_task_name: LTF_ECL_p96 mse:0.6357791423797607, mae:0.4840032756328583
+Avg score: LF-mse: nan, LF-mae: nan, CLS-acc nan, IMP-mse: 0.6357791423797607, IMP-mae: 0.4840032756328583, Ano-F: nan
+{'LTF_ECL_p96': {'mse': 0.63577914, 'mae': 0.48400328}}
