@@ -27,10 +27,12 @@ class LPFinetuning_NP:
 
     _data = None
 
+    # Default model, the largest one
     _model = "AutonLab/MOMENT-1-large"
 
     _seq_len = 512
 
+    # Patch Length acording to the paper ..
     _patch_len = 8
 
     _patch_stride_len = 8
@@ -49,6 +51,7 @@ class LPFinetuning_NP:
 
     _data_stride_len = 1
 
+    # Default mask ratios for trianing ..
     _mask_ratios = [0.125, 0.25, 0.375, 0.5]
 
     def __init__(self, ts_obj=None, model="AutonLab/MOMENT-1-large", seq_len=512, patch_len=8, patch_stride_len=8, batch_size=64, epochs=1, learning_rate=1e-4, max_lr=1e-3, random_seed=13, task_name='imputation', data_stride_len=1, self_supervised_masking=False):
@@ -85,7 +88,7 @@ class LPFinetuning_NP:
         model.init()
         model = model.to(device)
 
-        # Verify linear probing (only head should have requires_grad=True)
+        # Verify linear probing (only head should have requires_grad=True) ...
         for name, param in model.named_parameters():
             if "head" in name:
                 param.requires_grad = True
@@ -96,19 +99,9 @@ class LPFinetuning_NP:
         trainable_params = [p for p in model.parameters() if p.requires_grad]
         print(f"Trainable parameters: {sum(p.numel() for p in trainable_params)}")
 
-        # Datasets
-        # We need to adapt InformerDataset to accept numpy array if we want to use TimeSeries.data
-        # However, the user said "just replace the .txt file loading as dataset and make it compatible with the libraries TimeSeries() loading"
-        # If I want to use TimeSeries, I can pass the data to InformerDataset.
-        
-        # Let's check if we can pass the data directly.
-        # Based on previous session history, InformerDataset was supposed to handle numpy arrays.
-        # But the current informer_dataset.py doesn't show it.
-        # I will modify InformerDataset to support a new 'ts_m' parameter.
-
 
         if len(train_loader) == 0:
-            print("Error: Train loader is empty. Dataset might be too small for the given sequence length.")
+            print("Error: Train loader is empty. Dataset might be too small for the given sequence length, please choose a different one!")
             return
 
         # Training setup
@@ -178,7 +171,7 @@ class LPFinetuning_NP:
                 window_size = batch_x.shape[2]
                 observed_mask = self._flatten_observed_mask(batch_masks, batch_x)
 
-                # [B, C, L] -> [B*C, 1, L]
+                # [B, C, L] transforms to [B*C, 1, L]
                 batch_x = batch_x.reshape((-1, 1, window_size))
                 original = batch_x.clone()
                 model_input = torch.nan_to_num(batch_x, nan=0.0, posinf=0.0, neginf=0.0)
@@ -195,7 +188,7 @@ class LPFinetuning_NP:
                 loss_mask = self._hidden_observed_patch_mask(observed_mask, mask).unsqueeze(1)
                 loss = (loss_mask * recon_loss).sum() / (loss_mask.sum() + 1e-7)
             else:
-                # [B, C, L] -> [B*C, 1, L]
+                # [B, C, L] transforms to [B*C, 1, L]
                 batch_x = batch_x.reshape((-1, 1, 512))
                 original = batch_x.clone()
 

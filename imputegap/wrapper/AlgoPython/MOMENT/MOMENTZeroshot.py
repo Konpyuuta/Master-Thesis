@@ -80,7 +80,7 @@ class MOMENTZeroshot:
         return (sums / counts).T
 
     def run_test(self, test_dataloader=None, description="Zero-shot imputation"):
-        # Load dataset if not provided
+        # Load dataset if not already provided ..
         if test_dataloader is None:
             test_dataset = InformerDataset(
                 data_split='test',
